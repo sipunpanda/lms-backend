@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 const isLoggedIn = async (req, res, next) =>{
 console.log("intoken");
 
-    const {token} = req.cookies;
+    const {token} = await (req.cookies);
 console.log(token,"token");
 
     if(!token) return next(new AppError("Invalid token provided to login request Please Log In... "))

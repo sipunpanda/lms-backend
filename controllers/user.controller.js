@@ -22,7 +22,7 @@ const register = async (req, res, next) => {
 
 
     try {
-console.log("here");
+
 
         if (!fullName || !email || !password || !req.file) {
             return next(new AppError('All fields are required', 400))

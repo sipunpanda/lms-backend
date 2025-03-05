@@ -51,11 +51,11 @@ const getLectureById = async (req, res, next) => {
 const createCourse = async (req, res, next) => {
     try {
 
-        const { title, description, category, createdBy } = req.body;
+        const { title, description, category, createdBy } = req.body;        
         if (!title || !description || !category || !createdBy) {
             return next(new AppError("All fields are required", 400))
         }
-
+        
         const newCourse = await Course.create({
             title,
             description,
@@ -66,17 +66,16 @@ const createCourse = async (req, res, next) => {
                 secure_url: 'Dummy Data'
             }
         })
-
+        
         if (!newCourse) {
             return next(new AppError("Unable to create course", 400))
         }
         try {
-
             if (req.file) {
                 const result = await cloudinary.v2.uploader.upload(req.file.path, {
                     folder: 'lms'
                 });
-
+                
                 if (result) {
                     newCourse.thumbnail.public_id = result.public_id;
                     newCourse.thumbnail.secure_url = result.secure_url;
@@ -86,7 +85,7 @@ const createCourse = async (req, res, next) => {
         } catch (e) {
             fs.rm(`uploads/${req.file.filename}`);
             return next(new AppError(`Error uploading image: ${e.message}`, 400))
-
+            
         }
         await newCourse.save();
         res.status(201).json({
@@ -94,7 +93,7 @@ const createCourse = async (req, res, next) => {
             message: "Course created successfully",
             course: newCourse
         })
-
+        
     } catch (e) {
         return next(new AppError("Unable to create course", 400))
 
@@ -170,12 +169,16 @@ const deleteCourse = async (req, res, next) => {
 
 const addLectureToCourseById = async (req, res, next) => {
     try {
+        
         const { title, description } = req.body;
+        
         const { id } = req.params;
         if (!title || !description) {
             return next(new AppError("Title and Description are required", 400))
         }
         const course = await Course.findById(id);
+       
+        
         if (!course) {
             return next(new AppError("Course not found, Invalid id !", 404))
         }
@@ -241,17 +244,16 @@ const deleteLectureFromCourseById = async (req, res, next) => {
         const course = await Course.findById(id);
         if (!course) {
             return next(new AppError("Course not found, Invalid id!", 404))
-
         }
         if (course.lectures.length === 0) {
             return next(new AppError("No lectures found in this course", 404))
-
+            
         }
         // Check if the lecture exists in the course
         const lectureIndex = course.lectures.findIndex(lecture => lecture.id.toString() === lectureId);
         if (lectureIndex === -1) {
             return next(new AppError("Lecture not found in this course", 404))
-
+            
         }
         // Delete the lecture from the course
 
@@ -275,6 +277,7 @@ const deleteLectureFromCourseById = async (req, res, next) => {
         // Update the number of lectures in the course document
         course.numbersOfLectures = course.lectures.length;
         await course.save();
+        
         res.status(200).json({
             success: true,
             message: "Lecture deleted successfully",
@@ -283,6 +286,7 @@ const deleteLectureFromCourseById = async (req, res, next) => {
 
     }
     catch (error) {
+        
         return next(new AppError("Unable to delete lecture", 400));
 
     }

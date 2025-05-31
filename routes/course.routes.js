@@ -11,7 +11,7 @@ const router = Router();
 router.get('/',isLoggedIn, getAllCourses)
     .post('/', isLoggedIn, authorizedRole('ADMIN'), upload.single('thumbnail'), createCourse);
 
-router.get('/:id', isLoggedIn, authorizedRole('ADMIN'), getLectureById)
+router.get('/:id', isLoggedIn, authorizedRole('ADMIN','USER'), getLectureById)
     .put('/:id', isLoggedIn, authorizedRole('ADMIN'), updateCourse)
     .delete('/:id', isLoggedIn, authorizedRole('ADMIN'), deleteCourse)
     .post('/:id', isLoggedIn, authorizedRole('ADMIN'), upload.single('lectureThumbnail'), addLectureToCourseById)

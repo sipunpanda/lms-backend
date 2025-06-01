@@ -42,7 +42,7 @@ export const buySubscription = async (req, res, next) => {
         });
         
         
-        console.log("subscription created", subscription);
+        // console.log("subscription created", subscription);
         
 
         if (!subscription) return next(new AppError(" subscription is not available for subscription ", 404));
@@ -53,7 +53,7 @@ export const buySubscription = async (req, res, next) => {
         
         await user.save();
         
-        console.log("in payment contriloller");
+        // console.log("in payment contriloller");
         res.status(200).json({
             success: true,
             message: "Successfully purchased a subscription",
@@ -71,16 +71,18 @@ export const buySubscription = async (req, res, next) => {
 
 export const verifySubscription = async (req, res, next) => {
     const { id } = req.user
-    const { razorpay_payment_id, razorpay_signature, razorpay_subscription_id } = req.params
+    
+    const { razorpay_payment_id, razorpay_signature, razorpay_subscription_id } = req.body;
+    
 
     const user = await User.findById(id);
     if (!user) return next(new AppError("Unauthorized, please login", 401));
 
-    const subscriptionId =  user.subscription.id;
+    const subscriptionId =  user.subscription.id;    
 
     const generatedSignature = crypto
         .createHmac('sha256', process.env.RAZORPAY_SECRET)
-        .update(`${razorpay_payment_id}|${subscriptionId}`)
+        .update(`${razorpay_payment_id}|${razorpay_subscription_id}`)
         .digest('hex');
 
     if (generatedSignature !== razorpay_signature) return next(new AppError("Invalid signature", 400));
